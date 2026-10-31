@@ -1,0 +1,175 @@
+name: Repository Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'installed_files.txt'
+      - 'README.md'
+      - '.gitignore'
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Package to build ("autodetect" = full version sweep)'
+        required: false
+        default: 'autodetect'
+        type: choice
+        options:
+          - autodetect
+          - all
+          - bankstown
+          - bankstown-git
+          - brcm-firmware-fetch
+          - fruitjuice
+          - hid_t2magicmouse-dkms
+          - kait2en-apps-meta
+          - kait2en-assets
+          - kait2en-gdm-theme
+          - kait2en-gpu-runtime-pm
+          - kait2en-gpu-runtime-pm-t2
+          - kait2en-modules-meta
+          - kait2en-plymouth-theme
+          - kait2en-wireless-runtime-pm
+          - kait2en-wireless-runtime-pm-cachy
+          - kait2en-wireless-runtime-pm-t2
+          - netmuxd-git
+          - react-drm
+          - sunshine-t2-sidecar
+          - t2-airshare
+          - t2-ave
+          - t2bce_audio-alsa-ucm-conf
+          - t2bce_audio-dsp
+          - t2bce-dkms
+          - t2bdrm-dkms
+          - t2-debug
+          - t2-dgpu-control
+          - t2-drop
+          - t2-fan-control
+          - t2-force-click
+          - t2gmux-dkms
+          - t2-hybrid-gpu-control
+          - t2-journal
+          - t2mfi_fastcharge-dkms
+          - t2-power-explorer
+          - t2-power-tune
+          - t2_precision_trackpad-dkms
+          - t2sbs-dkms
+          - t2sep-dkms
+          - t2-services
+          - t2-smc-control
+          - t2smc-dkms
+          - t2smp-dkms
+          - t2thunderbolt-dkms
+          - t2-touchbar
+          - t2touchbar-dkms
+          - t2-touchid
+          - t2_trackpad_actuator-dkms
+          - t2-zone-power
+
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_HOME: ${{ github.workspace }}/.cargo-cache
+  npm_config_cache: ${{ github.workspace }}/.npm-cache
+  PACKAGER: "Turann_ (turannul) <turanull000@gmail.com>"
+  GPG_PRIVATE_KEY: ${{ secrets.key }}
+  GPG_KEY_ID: "98B860D8676E4DEEF322A979DC967DFB72E7D920"
+  REPO_NAME: "turann-s-place"
+
+jobs:
+  detect:
+    runs-on: ubuntu-26.04
+    container: archlinux:base
+    outputs:
+      packages: ${{ steps.target-matrix.outputs.packages || steps.set-matrix.outputs.packages }}
+    steps:
+      - name: Setup
+        run: pacman --sync --refresh --noconfirm --needed git
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Repos
+        run: bash .github/workflow_scripts/lib.sh setup_repos
+
+      - name: Select
+        id: target-matrix
+        if: github.event_name == 'workflow_dispatch' && inputs.target != ''
+        env:
+          TARGET: ${{ inputs.target }}
+        run: bash .github/workflow_scripts/detect.sh manual
+
+      - name: Detect
+        id: set-matrix
+        if: github.event_name != 'workflow_dispatch' || inputs.target == ''
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          EVENT_BEFORE: ${{ github.event.before }}
+        run: bash .github/workflow_scripts/detect.sh
+
+  build:
+    needs: detect
+    if: needs.detect.outputs.packages != '[]'
+    runs-on: ubuntu-26.04
+    container: archlinux:base
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.detect.outputs.packages) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Build
+        run: bash .github/workflow_scripts/build.sh "${{ matrix.package.dir }}"
+
+      - name: Upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.package.artifact }}
+          path: |
+            ${{ matrix.package.dir }}/*.pkg.tar.zst
+            ${{ matrix.package.dir }}/*.pkg.tar.zst.sig
+            ${{ matrix.package.dir }}/PKGBUILD
+          if-no-files-found: error
+
+  prepare_repo:
+    needs: [detect, build]
+    if: "!cancelled() && needs.detect.outputs.packages != '[]' && github.event_name != 'pull_request'"
+    runs-on: ubuntu-26.04
+    container: archlinux:base
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Setup
+        run: pacman --sync --refresh --noconfirm --needed git
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/workflow_scripts/prepare_repo.sh

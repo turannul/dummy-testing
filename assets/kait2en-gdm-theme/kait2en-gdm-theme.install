@@ -1,0 +1,11 @@
+post_install() {
+    command -v dconf && dconf update
+}
+
+post_upgrade() {
+    post_install
+}
+
+post_remove() {
+    command -v dconf && dconf update
+}

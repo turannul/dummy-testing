@@ -1,0 +1,14 @@
+post_install() {
+    [ -d /run/systemd/system ] && systemctl daemon-reload
+    systemctl enable t2-services-suspend.service
+}
+
+post_upgrade() {
+    [ -d /run/systemd/system ] && systemctl daemon-reload
+    systemctl enable t2-services-suspend.service
+}
+
+pre_remove() {
+    [ -d /run/systemd/system ] && systemctl stop t2-services-suspend.service
+    systemctl disable t2-services-suspend.service
+}

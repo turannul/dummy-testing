@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+
+source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+
+install_tools() {
+    pacman --sync --noconfirm --needed git nodejs
+}
+
+setup_environment() {
+    step setup_repos
+    step install_tools
+    set -e
+    step create_user
+}
+
+out() {
+  echo "$1" >> "$GITHUB_OUTPUT"
+}
+
+emit_matrix() {
+  echo "Packages to build:"
+  echo "${1:-none}"
+  out "packages=[$(awk 'NF { if (n++) printf ","; a=$1; gsub("/", "-", a); printf "{\"dir\":\"%s\",\"artifact\":\"pkg-%s\"}", $1, a }' <<<"$1")]"
+}
+
+trim() {
+  local s="$1"
+  s="${s#"${s%%[![:space:]]*}"}"
+  s="${s%"${s##*[![:space:]]}"}"
+  printf '%s' "$s"
+}
+
+pkgver_of() {
+  makepkg_as_user "$1" --printsrcinfo </dev/null | awk --field-separator=' = ' '/^[[:space:]]*pkgver = /{print $2}'
+}
+
+pkgrel_of() {
+  makepkg_as_user "$1" --printsrcinfo </dev/null | awk --field-separator=' = ' '/^[[:space:]]*pkgrel = /{print $2}'
+}
+
+pkgrel_from_pkgbuild() {
+  sed --quiet 's/^[[:space:]]*pkgrel=//p' "$1/PKGBUILD" | head --lines=1 | tr -d "'\""
+}
+
+repo_pkgrel() {
+  local pkgname="$1" dbfile="/var/lib/pacman/sync/turann-s-place.db"
+  [ -f "$dbfile" ] || return 1
+  tar -tf "$dbfile" 2>/dev/null | sed -nE "s/^$pkgname-.*-([0-9]+)\/desc\$/\\1/p" | head -1
+}
+
+run_makepkg_nobuild() {
+  makepkg_as_user "$1" --nobuild --cleanbuild --nodeps --noprepare --skippgpcheck </dev/null >/dev/null 2>&1
+}
+
+# return: 0 = outdated, 1 = up to date, 2 = error
+check_pkgver() {
+  local d="$1" local_ver upstream_ver local_rel upstream_rel repo_rel
+  echo "== checking $d =="
+
+  local_ver=$(pkgver_of "$d")
+  local_rel=$(pkgrel_of "$d")
+  run_makepkg_nobuild "$d" && upstream_ver=$(pkgver_of "$d") && upstream_rel=$(pkgrel_of "$d")
+
+  local_pkgrel=$(pkgrel_from_pkgbuild "$d")
+  local pkgname
+  pkgname=$(pkgname_of "$d")
+  repo_rel=$(repo_pkgrel "$pkgname")
+
+  echo "   local: ${local_ver:-?}-${local_pkgrel:-?}"
+  echo "   upstream: ${upstream_ver:-?}-${upstream_rel:-?}"
+  [ -n "$repo_rel" ] && echo "   repo: ${repo_rel}"
+
+  [ -n "$local_ver" ] && [ -n "$upstream_ver" ] || { echo "   -> error"; return 2; }
+
+  # Outdated if: upstream pkgver changed OR local pkgrel > repo pkgrel
+  if [ "$local_ver" != "$upstream_ver" ]; then
+    echo "   -> outdated (pkgver)"
+    return 0
+  fi
+
+  if [ -n "$repo_rel" ] && [ -n "$local_pkgrel" ] && [ "$local_pkgrel" -gt "$repo_rel" ]; then
+    echo "   -> outdated (pkgrel)"
+    return 0
+  fi
+
+  echo "   -> up to date"
+  return 1
+}
+
+setup_upstream_cache() {
+  local cache=/tmp/KaiT2en-Fedora.git
+  if [ ! -d "$cache" ]; then
+    echo "Caching KaiT2en-Fedora git repo..." >&2
+    git clone --mirror https://github.com/kaiT2en/KaiT2en-Fedora.git "$cache"
+    chmod --recursive a+rX "$cache"
+  else
+    echo "Refreshing KaiT2en-Fedora git cache..." >&2
+    git --git-dir="$cache" remote update --prune
+  fi
+  git config --system --replace-all url."$cache".insteadOf "https://github.com/kaiT2en/KaiT2en-Fedora.git"
+  git config --system --add url."$cache".insteadOf "https://github.com/kaiT2en/KaiT2en-Fedora"
+}
+
+vcs_pkgs() {
+  local d
+  for d in $(all_pkgs); do
+    grep --quiet 'pkgver()' "$d/PKGBUILD" || continue
+    echo "$d"
+  done
+}
+
+check_one() {
+  local d="$1" rc=0 log
+  log=$(check_pkgver "$d" 2>&1) || rc=$?
+  printf '%s\n    %ss\n' "$log" "$SECONDS" >&2
+  echo "$rc" > "$RESULTS/${d//\//%}"
+}
+
+outdated_pkgs() {
+  local -a pkgs
+  local d rc start=$SECONDS
+  mapfile -t pkgs < <(vcs_pkgs)
+  RESULTS=$(mktemp --directory)
+  export RESULTS
+  export -f check_one check_pkgver pkgver_of pkgrel_of pkgrel_from_pkgbuild repo_pkgrel pkgname_of run_makepkg_nobuild makepkg_as_user
+
+  printf '%s\n' "${pkgs[@]}" | xargs --no-run-if-empty -P "$(nproc)" -I{} bash -c 'check_one "$1"' _ {} || true
+
+  for d in "${pkgs[@]}"; do
+    rc=$(cat "$RESULTS/${d//\//%}" 2>/dev/null || echo 2)
+    case $rc in
+      0) echo "$d" ;;
+      1) ;;
+      *) echo "::warning::version check failed for $d" >&2 ;;
+    esac
+  done
+  echo "==> version checks completed in $((SECONDS - start))s" >&2
+}
+
+changed_pkgs() {
+  local ref="$1"
+  if [ -z "$ref" ] || [ "$ref" = "0000000000000000000000000000000000000000" ] || ! git rev-parse --verify --quiet "$ref" >/dev/null; then
+    if git rev-parse --verify --quiet HEAD~1 >/dev/null; then
+      ref="HEAD~1"
+    else
+      ref=$(git hash-object -t tree /dev/null)
+    fi
+  fi
+
+  echo "Comparing changes against ref: $ref" >&2
+  git diff --name-only "$ref" HEAD | while read -r f; do
+    [ -z "$f" ] && continue
+    local d
+    d=$(dirname "$f")
+    [ -f "$d/PKGBUILD" ] && echo "$d"
+  done | sort --unique
+}
+
+detect_changed() {
+  trust_git_dirs
+  local ref
+  if [ -n "${EVENT_BEFORE:-}" ]; then
+    ref="$EVENT_BEFORE"
+  else
+    ref="origin/${BASE_REF:-main}"
+    if ! git rev-parse --verify --quiet "$ref" >/dev/null; then
+      echo "Fetching $ref..."
+      git fetch --no-tags origin "+${BASE_REF:-main}:${ref}" || true
+    fi
+  fi
+  emit_matrix "$(changed_pkgs "$ref")"
+}
+
+detect_push() {
+  trust_git_dirs
+  emit_matrix "$(changed_pkgs "${EVENT_BEFORE:-}")"
+}
+
+detect_outdated() {
+  step setup_upstream_cache
+  emit_matrix "$(outdated_pkgs)"
+}
+
+detect_manual() {
+  local t p d valid="" inv=""
+  t=$(trim "${TARGET:-${1:-}}")
+  [ "$t" = "autodetect" ] && t=""
+
+  if [ -z "$t" ]; then
+    setup_environment
+    echo "No target given, checking all packages for outdated versions..."
+    detect_outdated
+    return
+  fi
+
+  if [ "$t" = "all" ]; then
+    emit_matrix "$(all_pkgs)"
+    return
+  fi
+
+  for p in ${t//,/ }; do
+    p=$(trim "$p")
+    [ -z "$p" ] && continue
+    if [ "$p" = "all" ]; then
+      emit_matrix "$(all_pkgs)"
+      return
+    fi
+    if d=$(find_pkg_dir "$p"); then
+      valid="${valid:+$valid$'\n'}$d"
+    elif [ -d "$p" ] && [ -f "$p/PKGBUILD" ]; then
+      valid="${valid:+$valid$'\n'}$p"
+    else
+      inv="${inv:+$inv, }$p"
+    fi
+  done
+  if [ -n "$inv" ]; then
+    echo "Package(s) not found: $inv"
+  fi
+  if [ -z "$valid" ]; then
+    out "packages=[]"
+    return
+  fi
+  emit_matrix "$(printf '%s\n' "$valid" | sort --unique)"
+}
+
+main() {
+  local mode="${1:-${EVENT_NAME:-${GITHUB_EVENT_NAME:-push}}}"
+
+  case "$mode" in
+    workflow_dispatch|manual)
+      detect_manual "${TARGET:-${2:-}}"
+      ;;
+    pull_request)
+      detect_changed
+      ;;
+    push|ci)
+      detect_push
+      ;;
+    schedule|*)
+      setup_environment
+      detect_outdated
+      ;;
+  esac
+}
+
+main "$@"

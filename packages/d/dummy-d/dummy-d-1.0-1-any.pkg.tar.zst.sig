@@ -1,0 +1,1 @@
+../../../x86_64/dummy-d-1.0-1-any.pkg.tar.zst.sig

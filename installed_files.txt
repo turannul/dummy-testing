@@ -13,3 +13,6 @@ usr/share/dummy-b/marker
 # dummy-c
 usr/share/dummy-c/marker
 
+# dummy-x
+usr/share/dummy-x/marker
+

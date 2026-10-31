@@ -69,6 +69,12 @@ on:
           - t2-touchid
           - t2_trackpad_actuator-dkms
           - t2-zone-power
+          - dummy-a
+          - dummy-b
+          - dummy-c
+          - dummy-d
+          - dummy-e
+          - dummy-x
 
 concurrency:
   group: pipeline-${{ github.ref }}

@@ -8,7 +8,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 ws="$GITHUB_WORKSPACE"
 repo="${REPO_NAME:-turann-s-place}"
-remote="https://actions-user:${tok}@github.com/turannul/KaiT2en-Arch.git"
+remote="${PUBLISH_REMOTE:-https://actions-user:${tok}@github.com/turannul/dummy-testing.git}"
 updated_pkgs=""
 
 install_tools() {

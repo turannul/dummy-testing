@@ -111,6 +111,28 @@ prune_pkgrels() {
   echo "pruned $drops pkgrel-superseded archive(s)"
 }
 
+gen_pool() {
+  local f n d b total=0
+  for f in x86_64/*.pkg.tar.zst; do
+    [ -f "$f" ] && total=$((total + 1))
+  done
+  if [ "$total" -eq 0 ]; then
+    echo "gen_pool: no archives, skipping"
+    return 0
+  fi
+  rm --recursive --force packages
+  for f in x86_64/*.pkg.tar.zst; do
+    [ -f "$f" ] || continue
+    n=$(pkgfile_name "$f")
+    d="packages/${n:0:1}/$n"
+    mkdir --parents "$d"
+    b=$(basename "$f")
+    ln --symbolic --force "../../../x86_64/$b" "$d/$b"
+    [ -f "$f.sig" ] && ln --symbolic --force "../../../x86_64/$b.sig" "$d/$b.sig"
+    printf '<a href="%s">%s</a>\n' "$b" "$b" >> "$d/index.html"
+  done
+}
+
 commit_push() {
   git diff --cached --quiet && { echo "No changes to commit on $2."; return; }
   git commit --message="$1"
@@ -212,6 +234,7 @@ prepare_repo() {
   step sync_pkgs
   step prune_orphans
   step prune_pkgrels
+  step gen_pool
   step publish_pages
   cd "$ws"
   step sync_pkgbuilds

@@ -1,3 +1,133 @@
+# kait2en-wireless-runtime-pm
+usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-bca.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-cyw.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-wcc.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/btbcm.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/hci_bcm4377.ko.zst
+usr/lib/modules/7.2.11-arch1-1/updates/hci_uart.ko.zst
+usr/share/licenses/kait2en-wireless-runtime-pm/LICENSE
+
+# t2bce-dkms
+etc/mkinitcpio.conf.d/00-kait2en-t2bce.conf
+usr/lib/modprobe.d/00-kait2en-t2bce.conf
+usr/share/licenses/t2bce-dkms/LICENSE
+usr/src/t2bce_stack-0.01/Makefile
+usr/src/t2bce_stack-0.01/README.md
+usr/src/t2bce_stack-0.01/dkms.conf
+usr/src/t2bce_stack-0.01/t2bce_audio/Makefile
+usr/src/t2bce_stack-0.01/t2bce_audio/README.md
+usr/src/t2bce_stack-0.01/t2bce_audio/audio.c
+usr/src/t2bce_stack-0.01/t2bce_audio/audio.h
+usr/src/t2bce_stack-0.01/t2bce_audio/description.h
+usr/src/t2bce_stack-0.01/t2bce_audio/pcm.c
+usr/src/t2bce_stack-0.01/t2bce_audio/pcm.h
+usr/src/t2bce_stack-0.01/t2bce_audio/protocol.c
+usr/src/t2bce_stack-0.01/t2bce_audio/protocol.h
+usr/src/t2bce_stack-0.01/t2bce_audio/protocol_bce.c
+usr/src/t2bce_stack-0.01/t2bce_audio/protocol_bce.h
+usr/src/t2bce_stack-0.01/t2bce_audio/tests/timing_test.c
+usr/src/t2bce_stack-0.01/t2bce_audio/timing.h
+usr/src/t2bce_stack-0.01/t2bce_ave/Kconfig
+usr/src/t2bce_stack-0.01/t2bce_ave/Makefile
+usr/src/t2bce_stack-0.01/t2bce_ave/ave.c
+usr/src/t2bce_stack-0.01/t2bce_ave/encoder.c
+usr/src/t2bce_stack-0.01/t2bce_ave/encoder.h
+usr/src/t2bce_stack-0.01/t2bce_ave/protocol.c
+usr/src/t2bce_stack-0.01/t2bce_ave/protocol.h
+usr/src/t2bce_stack-0.01/t2bce_ave/video.c
+usr/src/t2bce_stack-0.01/t2bce_ave/video.h
+usr/src/t2bce_stack-0.01/t2bce_core/.gitignore
+usr/src/t2bce_stack-0.01/t2bce_core/Makefile
+usr/src/t2bce_stack-0.01/t2bce_core/README.md
+usr/src/t2bce_stack-0.01/t2bce_core/include/t2bce_core_transport.h
+usr/src/t2bce_stack-0.01/t2bce_core/mailbox.c
+usr/src/t2bce_stack-0.01/t2bce_core/mailbox.h
+usr/src/t2bce_stack-0.01/t2bce_core/t2bce.h
+usr/src/t2bce_stack-0.01/t2bce_core/t2bce_main.c
+usr/src/t2bce_stack-0.01/t2bce_core/transport.c
+usr/src/t2bce_stack-0.01/t2bce_dma/Makefile
+usr/src/t2bce_stack-0.01/t2bce_dma/README.md
+usr/src/t2bce_stack-0.01/t2bce_dma/include/t2bce_dma_queue.h
+usr/src/t2bce_stack-0.01/t2bce_dma/queue.c
+usr/src/t2bce_stack-0.01/t2bce_sidecar/Kconfig
+usr/src/t2bce_stack-0.01/t2bce_sidecar/Makefile
+usr/src/t2bce_stack-0.01/t2bce_sidecar/bplist.c
+usr/src/t2bce_stack-0.01/t2bce_sidecar/bplist.h
+usr/src/t2bce_stack-0.01/t2bce_sidecar/session.c
+usr/src/t2bce_stack-0.01/t2bce_sidecar/sidecar.h
+usr/src/t2bce_stack-0.01/t2bce_sidecar/usb.c
+usr/src/t2bce_stack-0.01/t2bce_sidecar/video.c
+usr/src/t2bce_stack-0.01/t2bce_vhci/Makefile
+usr/src/t2bce_stack-0.01/t2bce_vhci/command.h
+usr/src/t2bce_stack-0.01/t2bce_vhci/queue.c
+usr/src/t2bce_stack-0.01/t2bce_vhci/queue.h
+usr/src/t2bce_stack-0.01/t2bce_vhci/transfer.c
+usr/src/t2bce_stack-0.01/t2bce_vhci/transfer.h
+usr/src/t2bce_stack-0.01/t2bce_vhci/vhci.c
+usr/src/t2bce_stack-0.01/t2bce_vhci/vhci.h
+
+# t2-drop
+usr/bin/t2drop
+usr/lib/systemd/system/t2-drop.service
+usr/share/dbus-1/system-services/org.t2drop.service
+usr/share/dbus-1/system.d/org.t2drop.conf
+usr/share/licenses/t2-drop/LICENSE
+
+# t2bce_audio-alsa-ucm-conf
+usr/share/alsa/ucm2/AppleT2/HiFi-x2.conf
+usr/share/alsa/ucm2/AppleT2/HiFi-x4.conf
+usr/share/alsa/ucm2/AppleT2/HiFi-x6.conf
+usr/share/alsa/ucm2/conf.d/AppleT2x2/AppleT2x2.conf
+usr/share/alsa/ucm2/conf.d/AppleT2x4/AppleT2x4.conf
+usr/share/alsa/ucm2/conf.d/AppleT2x6/AppleT2x6.conf
+usr/share/licenses/t2bce_audio-alsa-ucm-conf/LICENSE
+
+# t2-touchbar
+etc/kait2en/touchbar.toml
+usr/bin/kait2en-touchbar
+usr/lib/systemd/system/kait2en-touchbar-attach.service
+usr/lib/systemd/user/kait2en-touchbar.service
+usr/lib/sysusers.d/t2-touchbar.conf
+usr/lib/tmpfiles.d/t2-touchbar.conf
+usr/lib/udev/rules.d/99-zz-kait2en-touchbar.rules
+usr/share/licenses/kait2en-touchbar/LICENSE
+usr/share/licenses/kait2en-touchbar/THIRD-PARTY-NOTICES.md
+
+# kait2en-wireless-runtime-pm-cachy
+usr/lib/modules/7.3.1-1-cachyos/updates/brcmfmac-bca.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/brcmfmac-cyw.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/brcmfmac-wcc.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/brcmfmac.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/btbcm.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/hci_bcm4377.ko.zst
+usr/lib/modules/7.3.1-1-cachyos/updates/hci_uart.ko.zst
+usr/share/licenses/kait2en-wireless-runtime-pm-cachy/LICENSE
+
+# kait2en-wireless-runtime-pm-t2
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/brcmfmac-bca.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/brcmfmac-cyw.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/brcmfmac-wcc.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/brcmfmac.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/btbcm.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/hci_bcm4377.ko.zst
+usr/lib/modules/7.2.11-arch1-Watanare-T2-1-t2/updates/hci_uart.ko.zst
+usr/share/licenses/kait2en-wireless-runtime-pm-t2/LICENSE
+
+# t2-journal
+usr/bin/t2-journal
+usr/bin/t2journal
+usr/share/licenses/t2-journal/LICENSE
+
+# t2-power-tune
+usr/bin/t2-power-tune
+usr/lib/t2-power-tune/t2-power-tune-helper
+usr/lib/t2-power-tune/t2-power-tune-status
+usr/share/applications/org.t2powertune.gtk.desktop
+usr/share/icons/hicolor/scalable/apps/org.t2powertune.gtk.svg
+usr/share/licenses/t2-power-tune/LICENSE
+usr/share/polkit-1/actions/org.t2powertune.policy
+
 # dummy-d
 usr/share/dummy-d/marker
 
@@ -12,4 +142,47 @@ usr/share/dummy-b/marker
 
 # dummy-x
 usr/share/dummy-x/marker
+
+# kait2en-assets
+usr/share/fonts/kait2en/JetBrainsMono-Medium.ttf
+usr/share/fonts/kait2en/JetBrainsMono-Regular.ttf
+usr/share/kait2en/kaiT2en-logo-tr.png
+usr/share/kait2en/kaiT2en-logo-tr.svg
+usr/share/kait2en/kaiT2en-logo.png
+usr/share/kait2en/kait2en-fedora.jpeg
+usr/share/kait2en/kait2en-wordmark-light.png
+usr/share/kait2en/kait2en-wordmark.png
+usr/share/kait2en/kanji.ans
+usr/share/kait2en/kanji.txt
+usr/share/licenses/kait2en-assets/LICENSE
+usr/share/licenses/kait2en-assets/OFL.txt
+
+# t2-debug
+usr/bin/t2-debug
+usr/bin/t2debug
+usr/share/applications/org.t2debug.gtk.desktop
+usr/share/icons/hicolor/scalable/apps/org.t2debug.gtk.svg
+usr/share/licenses/t2-debug/LICENSE
+
+# t2-airshare
+usr/bin/t2-airshare
+usr/bin/t2airshare
+usr/lib/systemd/user/t2-airshare.service
+usr/share/applications/org.t2airshare.gtk.desktop
+usr/share/applications/org.t2airshare.send.desktop
+usr/share/icons/hicolor/scalable/apps/org.t2airshare.gtk.svg
+usr/share/kio/servicemenus/t2-airshare-send.desktop
+usr/share/licenses/t2-airshare/LICENSE
+usr/share/licenses/t2-airshare/LICENSE-Apache-2.0
+usr/share/licenses/t2-airshare/LICENSE-Chromium
+usr/share/licenses/t2-airshare/THIRD-PARTY-NOTICES.md
+usr/share/nautilus-python/extensions/t2-airshare-send.py
+usr/share/nemo/actions/t2-airshare-send.nemo_action
+
+# t2-force-click
+usr/bin/t2-force-click
+usr/lib/systemd/system/t2-force-click.service
+usr/share/applications/org.t2forceclick.gtk.desktop
+usr/share/icons/hicolor/scalable/apps/org.t2forceclick.gtk.svg
+usr/share/licenses/t2-force-click/LICENSE
 

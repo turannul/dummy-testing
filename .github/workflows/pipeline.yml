@@ -10,7 +10,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 9,21 * * *'
   workflow_dispatch:
     inputs:
       target:
@@ -69,12 +69,6 @@ on:
           - t2-touchid
           - t2_trackpad_actuator-dkms
           - t2-zone-power
-          - dummy-a
-          - dummy-b
-          - dummy-c
-          - dummy-d
-          - dummy-e
-          - dummy-x
 
 concurrency:
   group: pipeline-${{ github.ref }}
@@ -94,6 +88,7 @@ jobs:
     container: archlinux:base
     outputs:
       packages: ${{ steps.target-matrix.outputs.packages || steps.set-matrix.outputs.packages }}
+      removed: ${{ steps.target-matrix.outputs.removed || steps.set-matrix.outputs.removed }}
     steps:
       - name: Setup
         run: pacman --sync --refresh --noconfirm --needed git
@@ -153,7 +148,7 @@ jobs:
 
   prepare_repo:
     needs: [detect, build]
-    if: "!cancelled() && needs.detect.outputs.packages != '[]' && github.event_name != 'pull_request'"
+    if: "!cancelled() && !failure() && (needs.detect.outputs.packages != '[]' || needs.detect.outputs.removed != '[]') && github.event_name != 'pull_request'"
     runs-on: ubuntu-26.04
     container: archlinux:base
     permissions:
@@ -171,6 +166,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download
+        if: needs.detect.outputs.packages != '[]'
         uses: actions/download-artifact@v7
         with:
           path: artifacts

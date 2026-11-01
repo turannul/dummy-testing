@@ -1,0 +1,9 @@
+pkgname=dummy-x
+pkgver=1.2
+pkgrel=2
+pkgdesc="dummy test package"
+arch=('any')
+license=('MIT')
+package() {
+  install -Dm644 /dev/null "$pkgdir/usr/share/$pkgname/marker"
+}

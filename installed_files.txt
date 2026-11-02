@@ -1,11 +1,11 @@
 # kait2en-wireless-runtime-pm
-usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-bca.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-cyw.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac-wcc.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/brcmfmac.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/btbcm.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/hci_bcm4377.ko.zst
-usr/lib/modules/7.2.11-arch1-1/updates/hci_uart.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/brcmfmac-bca.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/brcmfmac-cyw.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/brcmfmac-wcc.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/brcmfmac.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/btbcm.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/hci_bcm4377.ko.zst
+usr/lib/modules/7.2.14-arch1-1/updates/hci_uart.ko.zst
 usr/share/licenses/kait2en-wireless-runtime-pm/LICENSE
 
 # t2bce-dkms
@@ -66,6 +66,11 @@ usr/src/t2bce_stack-0.01/t2bce_vhci/transfer.c
 usr/src/t2bce_stack-0.01/t2bce_vhci/transfer.h
 usr/src/t2bce_stack-0.01/t2bce_vhci/vhci.c
 usr/src/t2bce_stack-0.01/t2bce_vhci/vhci.h
+
+# kait2en-gpu-runtime-pm
+usr/lib/modprobe.d/kait2en-gpu-runtime-pm.conf
+usr/lib/modules/7.2.14-arch1-1/updates/amdgpu.ko.zst
+usr/share/licenses/kait2en-gpu-runtime-pm/LICENSE
 
 # t2-drop
 usr/bin/t2drop
